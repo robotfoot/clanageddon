@@ -9,3 +9,7 @@ Ideas:
 - 100 health, bullets reduce by 1
 - need trees, terrain, etc
 
+
+- First define island model
+- can we wrap picture around cylinder?
+- 
