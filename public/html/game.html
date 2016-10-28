@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!--html style="height:100%"-->
+<html >
+<head>
+<script src="/javascripts/three.min.js"></script>
+<script src="/javascripts/physi.js"></script>
+<script src="/javascripts/game.js"></script>
+<title>Clanageddon</title>
+<link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<h1>Clanageddon</h1>
+<p>Welcome to Clanageddon</p>
+<script>
+
+'use strict';
+
+Physijs.scripts.worker = '/js/physijs_worker.js';
+Physijs.scripts.ammo = '/js/ammo.js';
+
+
+var scene = new Physijs.Scene;
+var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+
+var ambient = new THREE.AmbientLight( 0xffffff );
+scene.add( ambient );
+
+initSky(scene);
+initLevel(scene);
+
+camera.position.set(50, 50, 50);
+camera.lookAt(new THREE.Vector3(0,0,0));
+
+function render() {
+  requestAnimationFrame( render );
+  renderer.render( scene, camera );
+}
+render();
+
+</script>
+</body>
+</html>

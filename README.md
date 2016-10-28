@@ -12,4 +12,5 @@ Ideas:
 
 - First define island model
 - can we wrap picture around cylinder?
-- 
+
+To run: DEBUG=myapp:* npm start 
