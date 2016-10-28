@@ -14,3 +14,6 @@ Ideas:
 - can we wrap picture around cylinder?
 
 To run: DEBUG=myapp:* npm start 
+
+##Dependencies
+[Physi.js](https://chandlerprall.github.io/Physijs/)

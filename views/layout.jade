@@ -1,9 +1,12 @@
 doctype html
-html(style="height:100%")
+html
   head
     script(src="/javascripts/three.min.js")
     script(src="/javascripts/game.js")
+    script(src="/javascripts/ammo.js")
+    script(src="/javascripts/physi.js")
+    script(src="/javascripts/physijs_worker.js")
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
-  body(style="height:100%")
+  body
     block content
