@@ -2,6 +2,32 @@ var playerBox, camera, scene;
 var incrementalRotation = Math.PI/50;
 var max_level_boxes = 5;
 
+var myBullets;
+
+var red_clan_id = "5813a7bf110d5c424b742e79";
+var otherPlayerMeshes;
+var otherPlayerBullets;
+
+var shotsFired = 0;
+
+var api_key = "621451be1ee84eeea8f852cb809cd307";
+var hydra_auth_headers = {
+	'x-hydra-api-key': api_key
+};
+
+var hydra_headers;
+var access_token;
+
+function login(){
+	$.get("http://localhost:3000/hydra/join/" + $("#callsign").val()).then(function(data){
+		access_token=data.access_token;
+	});
+}
+
+function updateShotsFired(){
+	$.get("http://localhost:3000/hydra/incrementShotsFired/" + encodeURIComponent(access_token) + "/" + shotsFired);
+}
+
 function initSky(){
 	var skyGeo = new THREE.SphereGeometry(100, 25, 25);
 	var skyMaterial = new THREE.MeshLambertMaterial({color: 0xBBBBEE});
@@ -24,7 +50,7 @@ function initLevel(){
 function createLevelBoxes(){
 	for(i=0; i < max_level_boxes; i++){
 		var boxGeo = new THREE.CylinderGeometry(2,2,20);
-	  var boxMaterial = new THREE.MeshPhongMaterial({map: THREE.ImageUtils.loadTexture('images/pillar.jpg')});
+		var boxMaterial = new THREE.MeshPhongMaterial({map: THREE.ImageUtils.loadTexture('images/pillar.jpg')});
 		var box = new Physijs.BoxMesh(boxGeo, boxMaterial, 20);
 		box.position.x = Math.floor(Math.random()*39);
 		box.position.y = 20;
@@ -59,30 +85,35 @@ function getRandomColor() {
 }
 
 function updateLevelState(){
-	camera.position.set(playerBox.position.x, playerBox.position.y, playerBox.position.z);
-	camera.rotation.set(playerBox.rotation.x, playerBox.rotation.y, playerBox.rotation.z);
+	if(playerBox){
+		camera.position.set(playerBox.position.x, playerBox.position.y, playerBox.position.z);
+		camera.rotation.set(playerBox.rotation.x, playerBox.rotation.y, playerBox.rotation.z);
+	}
 }
 
 function fire(){
-    var bulletVelocityMultiplier = 100;
-  	var bulletGeo = new THREE.BoxGeometry(1,1,1);
-	  var bulletMaterial = new THREE.MeshLambertMaterial({color: 0xFF0000});
-		var bullet = new Physijs.BoxMesh(bulletGeo, bulletMaterial);
-		//bullet.position.x = playerBox.position.x;
-		//bullet.position.y = playerBox.position.y;
-		//bullet.position.z = playerBox.position.z -5;
-    inFrontLocal = new THREE.Vector3(0,0,-1);
-		inFrontGlobal = playerBox.localToWorld(new THREE.Vector3(0,0,-1));
-		bullet.position.set(inFrontGlobal.getComponent(0), inFrontGlobal.getComponent(1), inFrontGlobal.getComponent(2));
-		scene.add(bullet);
+	var bulletVelocityMultiplier = 100;
+	var bulletGeo = new THREE.BoxGeometry(1,1,1);
+	var bulletMaterial = new THREE.MeshLambertMaterial({color: 0xFF0000});
+	var bullet = new Physijs.BoxMesh(bulletGeo, bulletMaterial);
+	//bullet.position.x = playerBox.position.x;
+	//bullet.position.y = playerBox.position.y;
+	//bullet.position.z = playerBox.position.z -5;
+	inFrontLocal = new THREE.Vector3(0,0,-1);
+	inFrontGlobal = playerBox.localToWorld(new THREE.Vector3(0,0,-1));
+	bullet.position.set(inFrontGlobal.getComponent(0), inFrontGlobal.getComponent(1), inFrontGlobal.getComponent(2));
+	scene.add(bullet);
 
-		rotation = playerBox.getWorldQuaternion();
-		bulletVelocity = inFrontLocal.applyQuaternion(rotation);
-    bulletVelocity = bulletVelocity.multiplyScalar(bulletVelocityMultiplier);
-    bullet.setLinearVelocity(bulletVelocity);
-    bullet.__dirtyPosition = true;
+	rotation = playerBox.getWorldQuaternion();
+	bulletVelocity = inFrontLocal.applyQuaternion(rotation);
+	bulletVelocity = bulletVelocity.multiplyScalar(bulletVelocityMultiplier);
+	bullet.setLinearVelocity(bulletVelocity);
+	bullet.__dirtyPosition = true;
 
-		setTimeout(function(){ scene.remove(bullet);}, 3000);
+	setTimeout(function(){ scene.remove(bullet);}, 3000);
+
+  shotsFired = shotsFired + 1;
+	updateShotsFired();
 }
 
 function onKeyDown(event){
@@ -105,12 +136,12 @@ function onKeyDown(event){
 			playerBox.rotateY(-incrementalRotation);
 			playerBox.__dirtyRotation = true;
 			break;
-  	case " ":
-      playerBox.setLinearVelocity(new THREE.Vector3(0, 5, 0));
+		case " ":
+			playerBox.setLinearVelocity(new THREE.Vector3(0, 5, 0));
 			playerBox.__dirtyPosition = true;
 			break;
-  	case "q":
-      fire();
+		case "q":
+			fire();
 			break;
 
 
@@ -131,7 +162,7 @@ function start(){
 
 	//initSky(scene);
 	var level = initLevel();
-	playerBox = dropPlayerBox();
+	//playerBox = dropPlayerBox();
 	var lightSource = addLightSource();
 	createLevelBoxes();
 
@@ -143,6 +174,7 @@ function start(){
 
 	function render() {
 		scene.simulate();
+		//sendLevelState();
 		updateLevelState();
 		renderer.render( scene, camera );
 		requestAnimationFrame( render );
@@ -150,5 +182,17 @@ function start(){
 	render();
 
 	document.addEventListener("keydown", onKeyDown, false);
-	document.addEventListener("keyup", onKeyUp, false);
+	//document.addEventListener("keyup", onKeyUp, false);
+}
+
+function sendLevelState(){
+	//sendPlayerMesh();
+	//sendBulletMeshes();
+}
+
+function joinClanAndPlay(){
+	//pick one of two clans and join
+	//drop player box
+	login();
+	playerBox = dropPlayerBox();
 }

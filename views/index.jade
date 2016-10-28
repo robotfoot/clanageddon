@@ -3,7 +3,8 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
-  button(name="Join clan and play!")
+  input(onclick="joinClanAndPlay()", type='button', name='joinClan', value="Join clan and play!")
+  input#callsign(type='text', name='callsign', value="")
   div#viewport
   script.
     start();
